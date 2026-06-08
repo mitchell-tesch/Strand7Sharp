@@ -6,7 +6,8 @@
 # never trips on a CRLF/LF mismatch between developer machines and CI.
 *.cs        text eol=lf working-tree-encoding=UTF-8 diff=csharp
 *.csproj    text eol=lf
-*.sln       text eol=crlf  # Visual Studio insists on CRLF for .sln files
+# Visual Studio insists on CRLF for .sln files.
+*.sln       text eol=crlf
 *.props     text eol=lf
 *.targets   text eol=lf
 
@@ -15,7 +16,8 @@
 *.yml          text eol=lf
 *.yaml         text eol=lf
 *.json         text eol=lf
-*.ps1          text eol=crlf  # PowerShell editors round-trip CRLF on Windows
+# PowerShell editors round-trip CRLF on Windows.
+*.ps1          text eol=crlf
 *.editorconfig text eol=lf
 *.gitignore    text eol=lf
 *.gitattributes text eol=lf

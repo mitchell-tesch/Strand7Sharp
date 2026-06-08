@@ -40,7 +40,9 @@ if (-not (Test-Path -LiteralPath $DocsDir))     { throw "Docs dir not found: $Do
 $summaries = @{}
 foreach ($md in Get-ChildItem -LiteralPath $DocsDir -Filter '*.md' -File) {
     $name = [System.IO.Path]::GetFileNameWithoutExtension($md.Name)
-    $text = (Get-Content -LiteralPath $md.FullName -Raw)
+    # Always read as UTF-8 - Windows PowerShell 5 otherwise defaults to the
+    # active ANSI code page and mangles curly quotes / em-dashes into mojibake.
+    $text = [System.IO.File]::ReadAllText($md.FullName, [System.Text.UTF8Encoding]::new($false))
 
     # Strip the leading `# St7Foo` heading.
     $text = $text -replace "^\s*#\s*$name\s*[\r\n]+", ''
@@ -63,7 +65,7 @@ if ($summaries.Count -eq 0) {
     return
 }
 
-$src = Get-Content -LiteralPath $InteropFile -Raw
+$src = [System.IO.File]::ReadAllText($InteropFile, [System.Text.UTF8Encoding]::new($false))
 $lines = [System.Collections.Generic.List[string]]::new()
 $lines.AddRange([string[]]($src -split "\r?\n"))
 
@@ -113,7 +115,7 @@ for ($i = 0; $i -lt $lines.Count; $i++) {
     $out.Add($line)
 }
 
-[System.IO.File]::WriteAllText($InteropFile, ($out -join "`r`n"), [System.Text.UTF8Encoding]::new($false))
+[System.IO.File]::WriteAllText($InteropFile, ($out -join "`n"), [System.Text.UTF8Encoding]::new($false))
 Write-Host "Injected $injected XML doc summaries into $InteropFile" -ForegroundColor Green
 
 

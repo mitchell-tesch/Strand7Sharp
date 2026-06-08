@@ -5,8 +5,15 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 New-Item -ItemType Directory -Force -Path (Split-Path -Parent $OutputFile) | Out-Null
-$src = Get-Content -LiteralPath $InteropFile -Raw
+# Read as UTF-8 explicitly; Windows PowerShell 5's Get-Content otherwise
+# defaults to ANSI on BOM-less files and would mojibake any non-ASCII chars
+# previously injected into the doc summaries.
+$src = [System.IO.File]::ReadAllText($InteropFile, [System.Text.UTF8Encoding]::new($false))
 $rx = [regex]'public\s+static\s+extern\s+int\s+(St7[A-Za-z0-9_]+)\s*\(([^)]*)\)\s*;'
+# Emit LF newlines regardless of host OS so the generated file matches the
+# `*.cs text eol=lf` rule in .gitattributes (otherwise CI's "Verify generated
+# code is up to date" step trips on a CRLF/LF mismatch against the index).
+$NL = "`n"
 $kw = @{}
 foreach ($k in @('abstract','as','base','bool','break','byte','case','catch','char','checked',
     'class','const','continue','decimal','default','delegate','do','double','else','enum',
@@ -121,6 +128,8 @@ foreach ($m in $rx.Matches($src)) {
     $count++
 }
 [void]$sb.AppendLine('}')
-[System.IO.File]::WriteAllText($OutputFile, $sb.ToString(), [System.Text.UTF8Encoding]::new($false))
+# Force LF line endings (see $NL note above) before writing.
+$text = $sb.ToString() -replace "`r`n", $NL
+[System.IO.File]::WriteAllText($OutputFile, $text, [System.Text.UTF8Encoding]::new($false))
 Write-Host "Generated $count wrappers -> $OutputFile" -ForegroundColor Green
 
