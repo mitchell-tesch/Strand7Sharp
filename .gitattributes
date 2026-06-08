@@ -1,0 +1,38 @@
+# Default: let git auto-detect text vs binary, normalize text to LF in repo.
+# Working trees on Windows still get CRLF (core.autocrlf=true on GH windows runners).
+* text=auto eol=lf
+
+# Source code — explicit so that the "verify generators are up to date" CI step
+# never trips on a CRLF/LF mismatch between developer machines and CI.
+*.cs        text eol=lf working-tree-encoding=UTF-8 diff=csharp
+*.csproj    text eol=lf
+*.sln       text eol=crlf  # Visual Studio insists on CRLF for .sln files
+*.props     text eol=lf
+*.targets   text eol=lf
+
+# Docs / configs / scripts
+*.md           text eol=lf
+*.yml          text eol=lf
+*.yaml         text eol=lf
+*.json         text eol=lf
+*.ps1          text eol=crlf  # PowerShell editors round-trip CRLF on Windows
+*.editorconfig text eol=lf
+*.gitignore    text eol=lf
+*.gitattributes text eol=lf
+
+# Binary blobs
+*.dll       binary
+*.exe       binary
+*.pdb       binary
+*.nupkg     binary
+*.snupkg    binary
+*.png       binary
+*.jpg       binary
+*.pdf       binary
+
+# Generated code — make GitHub fold these in PR diffs and exclude from
+# language stats. The two source-of-truth generators live under tools/.
+Strand7Sharp/Generated/**     linguist-generated=true
+Strand7Sharp/Interop/St7API.cs linguist-vendored=true
+docs/api/St7*.md              linguist-documentation=true
+

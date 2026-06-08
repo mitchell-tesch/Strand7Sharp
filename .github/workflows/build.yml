@@ -23,6 +23,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # SourceLink (Microsoft.SourceLink.GitHub) needs the commit SHA from
+          # the working repository. fetch-depth: 0 also makes blame/history
+          # available, which lets SourceLink and the "verify generators" step
+          # below diff against HEAD reliably.
+          fetch-depth: 0
 
       - name: Setup .NET (pinned via global.json)
         uses: actions/setup-dotnet@v4
@@ -41,18 +47,16 @@ jobs:
         # Re-runs the two idempotent generators; if they would change anything
         # the build is failing locally too. Fails fast in CI rather than
         # shipping a stale Generated/St7Native.g.cs or stale <summary> blocks.
+        # `shell: pwsh` already runs the block in PowerShell 7, so we invoke
+        # the scripts directly rather than spawning a nested `pwsh`.
         shell: pwsh
         run: |
-          pwsh tools/Inject-XmlDocs.ps1
-          pwsh tools/Generate-Wrapper.ps1
-          $changed = git status --porcelain -- `
-            'Strand7Sharp/Interop/St7API.cs' `
-            'Strand7Sharp/Generated/St7Native.g.cs'
+          ./tools/Inject-XmlDocs.ps1
+          ./tools/Generate-Wrapper.ps1
+          $changed = git status --porcelain -- 'Strand7Sharp/Interop/St7API.cs' 'Strand7Sharp/Generated/St7Native.g.cs'
           if ($changed) {
+            git --no-pager diff -- 'Strand7Sharp/Interop/St7API.cs' 'Strand7Sharp/Generated/St7Native.g.cs'
             Write-Error "Generated files are out of date. Re-run tools/Inject-XmlDocs.ps1 and tools/Generate-Wrapper.ps1 and commit the result.`n$changed"
-            git --no-pager diff -- `
-              'Strand7Sharp/Interop/St7API.cs' `
-              'Strand7Sharp/Generated/St7Native.g.cs'
             exit 1
           }
 
@@ -63,5 +67,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Strand7Sharp-nupkg
-          path: artifacts/*.nupkg
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
 
