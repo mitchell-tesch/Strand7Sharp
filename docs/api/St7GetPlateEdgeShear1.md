@@ -1,0 +1,33 @@
+# St7GetPlateEdgeShear1
+
+Returns the shear stress assigned to the specified plate edge. The shear stress is applied tangential to the plate
+edge. See also St7GetEntityAttributeSequenceCount and St7GetEntityAttributeSequence.
+
+Strand7 API Manual
+
+long St7GetPlateEdgeShear1(long uID, long PlateNum, long CaseNum, long EdgeNum,
+
+double* Doubles)
+
+Input Parameters
+
+uID
+
+Strand7 model file ID.
+
+PlateNum
+
+Plate number.
+
+CaseNum
+
+Load case number.
+
+EdgeNum
+
+Local edge number; one of 1, 2, 3 or 4.
+
+Output Parameters
+Doubles[0]
+
+Shear stress.

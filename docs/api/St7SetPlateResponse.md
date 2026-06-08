@@ -1,0 +1,37 @@
+# St7SetPlateResponse
+
+Assigns a response variable to the specified plate. Response variables are only used by the load influence solver.
+
+long St7SetPlateResponse(long uID, long PlateNum, long CaseNum,
+
+long ResponseType, long UCSId, long* Status)
+
+Input Parameters
+
+uID
+
+Strand7 model file ID.
+
+PlateNum
+
+Plate number.
+
+CaseNum
+
+Load case number.
+
+Strand7 API Manual
+
+ResponseType
+
+Response variable type; either rvPlateForce or rvPlateMoment.
+
+UCSId
+
+0 to use the plate local axis system, or the ID number of the specified UCS.  UCSId = 1 refers to the
+global XYZ system.
+
+Status[0..5]
+
+A 6-element array describing the force/moment components that are flagged as response variables
+according to the 123 axis convention in the specified UCS – [11, 22, 33, 12, 23, 31].

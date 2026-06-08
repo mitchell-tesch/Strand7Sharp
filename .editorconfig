@@ -1,0 +1,38 @@
+root = true
+
+# Common formatting --------------------------------------------------
+[*]
+indent_style       = space
+end_of_line        = crlf
+charset            = utf-8
+trim_trailing_whitespace = true
+insert_final_newline     = true
+
+[*.{cs,csproj,props,targets,sln}]
+indent_size = 4
+
+[*.{json,yml,yaml,md,ps1,psm1,psd1}]
+indent_size = 2
+
+# C# conventions -----------------------------------------------------
+# The project deliberately uses file-scoped namespaces that DON'T mirror
+# the folder layout - everything in Core/ and Domain/ lives under the
+# flat `Strand7Sharp` namespace by design (see AGENTS.md). Likewise the
+# Strand7 native API uses uppercase acronyms such as XYZ, UCS, UCS_Id
+# that Layer 3 preserves so call sites read 1:1 against the docs.
+# Silence the JetBrains/Roslyn analyzers that would otherwise flag them.
+
+[*.cs]
+csharp_style_namespace_declarations             = file_scoped:silent
+dotnet_diagnostic.IDE0130.severity              = none      # Namespace does not match folder structure
+resharper_check_namespace_highlighting          = none
+resharper_inconsistent_naming_highlighting      = none      # XYZ / UCS / DOF allowed
+resharper_redundant_using_directive_highlighting = suggestion
+
+# Generated code should never be linted -----------------------------
+[Strand7Sharp/Generated/**.cs]
+generated_code = true
+
+[Strand7Sharp/Interop/St7API.cs]
+generated_code = true
+

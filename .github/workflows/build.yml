@@ -1,0 +1,67 @@
+name: build
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancel superseded runs on the same branch / PR.
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Strand7Sharp is Windows-only by design (depends on St7API.dll and
+    # targets net9.0-windows;net8.0-windows;net48). CI must use windows-latest.
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET (pinned via global.json)
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore Strand7Sharp.sln
+
+      - name: Build (Release, all TFMs)
+        # St7API.dll is NOT redistributed and is not needed to build - the
+        # P/Invoke signatures resolve at runtime, not at compile time.
+        run: dotnet build Strand7Sharp.sln -c Release --no-restore /warnaserror
+
+      - name: Verify generated code is up to date
+        # Re-runs the two idempotent generators; if they would change anything
+        # the build is failing locally too. Fails fast in CI rather than
+        # shipping a stale Generated/St7Native.g.cs or stale <summary> blocks.
+        shell: pwsh
+        run: |
+          pwsh tools/Inject-XmlDocs.ps1
+          pwsh tools/Generate-Wrapper.ps1
+          $changed = git status --porcelain -- `
+            'Strand7Sharp/Interop/St7API.cs' `
+            'Strand7Sharp/Generated/St7Native.g.cs'
+          if ($changed) {
+            Write-Error "Generated files are out of date. Re-run tools/Inject-XmlDocs.ps1 and tools/Generate-Wrapper.ps1 and commit the result.`n$changed"
+            git --no-pager diff -- `
+              'Strand7Sharp/Interop/St7API.cs' `
+              'Strand7Sharp/Generated/St7Native.g.cs'
+            exit 1
+          }
+
+      - name: Pack NuGet
+        run: dotnet pack Strand7Sharp/Strand7Sharp.csproj -c Release --no-build -o artifacts
+
+      - name: Upload NuGet package
+        uses: actions/upload-artifact@v4
+        with:
+          name: Strand7Sharp-nupkg
+          path: artifacts/*.nupkg
+

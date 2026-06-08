@@ -1,0 +1,21 @@
+bin/
+obj/
+artifacts/
+*.user
+*.DotSettings.user
+.vs/
+.vscode/
+.idea/
+*.suo
+*.nupkg
+*.snupkg
+*.binlog
+TestResults/
+
+# Local artefacts from the docs pipeline (regenerate with tools\Convert-ApiManual.ps1)
+tools/api-manual.md
+tools/convert.log
+tools/test-setup.md
+.venv/
+
+

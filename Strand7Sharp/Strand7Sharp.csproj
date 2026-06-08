@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net9.0-windows;net8.0-windows;net48</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+        <!-- Reproducible / deterministic builds. -->
+        <Deterministic>true</Deterministic>
+        <!-- Embed un-tracked sources (e.g. Generated/St7Native.g.cs) in the symbol package
+             so step-into works for consumers even before we wire up SourceLink. -->
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+        <!-- NuGet package metadata -->
+        <IsPackable>true</IsPackable>
+        <PackageId>Strand7Sharp</PackageId>
+        <Version>0.1.0</Version>
+        <Authors>Mitchell Tesch</Authors>
+        <Copyright>Copyright © Mitchell Tesch</Copyright>
+        <Description>Idiomatic C# wrapper around the Strand7 R3 API (St7API.dll), with an OO model, exception-based error handling, IDisposable file/model handles, and bundled per-function documentation extracted from the official manual.</Description>
+        <PackageTags>strand7;fea;fem;structural;engineering;st7api;interop</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryType>git</RepositoryType>
+        <PackageProjectUrl>https://github.com/mitchell-tesch/Strand7Sharp</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/mitchell-tesch/Strand7Sharp.git</RepositoryUrl>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <!-- Strand7 ships St7API.dll only for Windows; this assembly is Windows-only -->
+        <SupportedOSPlatform>windows</SupportedOSPlatform>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- SourceLink: embeds repo URL + commit SHA into the PDB so consumers can
+             step into Strand7Sharp source straight from their debugger. Guarded by
+             the presence of a .git directory so a fresh `dotnet build` works before
+             `git init` (CI is unaffected: actions/checkout creates .git). -->
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0"
+                          PrivateAssets="all"
+                          Condition="Exists('$(MSBuildThisFileDirectory)..\.git')" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Link="README.md" Pack="true" PackagePath="\" />
+        <!--
+          Ship the per-function markdown docs alongside the package so agents/tooling can
+          find them. The Link metadata makes the external files appear under a virtual
+          "docs/api/" folder in Solution Explorer / the Rider project tree; %(RecursiveDir)
+          preserves any sub-folder structure both in the IDE and in the .nupkg.
+        -->
+        <None Include="..\docs\api\**\*.md"
+              Link="docs\api\%(RecursiveDir)%(Filename)%(Extension)"
+              Pack="true"
+              PackagePath="docs\api\%(RecursiveDir)" />
+        <!-- Surface the top-level documentation / agent guidance files too. -->
+        <None Include="..\docs\AGENTS.md" Link="docs\AGENTS.md" Pack="false" />
+        <None Include="..\AGENTS.md"      Link="AGENTS.md"      Pack="false" />
+    </ItemGroup>
+
+</Project>
