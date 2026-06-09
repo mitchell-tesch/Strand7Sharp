@@ -18,7 +18,7 @@ concurrency:
 jobs:
   build:
     # Strand7Sharp is Windows-only by design (depends on St7API.dll and
-    # targets net9.0-windows;net8.0-windows;net48). CI must use windows-latest.
+    # targets net8.0-windows;net48). CI must use windows-latest.
     runs-on: windows-latest
 
     steps:

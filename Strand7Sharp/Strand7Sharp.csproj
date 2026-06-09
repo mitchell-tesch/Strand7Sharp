@@ -18,13 +18,24 @@
         <!-- NuGet package metadata -->
         <IsPackable>true</IsPackable>
         <PackageId>Strand7Sharp</PackageId>
+        <Title>Strand7Sharp — Idiomatic Strand7 R3 API wrapper</Title>
         <Version>0.1.0</Version>
         <Authors>Mitchell Tesch</Authors>
         <Copyright>Copyright © Mitchell Tesch</Copyright>
         <Description>Idiomatic C# wrapper around the Strand7 R3 API (St7API.dll), with an OO model, exception-based error handling, IDisposable file/model handles, and bundled per-function documentation extracted from the official manual.</Description>
         <PackageTags>strand7;fea;fem;structural;engineering;st7api;interop</PackageTags>
+
+        <!-- Package validation: fails `dotnet pack` if the public API surface
+             diverges across our TFMs (net8.0-windows vs net48) — easy to do
+             accidentally when a shared file uses a net8-only API. -->
+        <EnableStrictModeForCompatibleTfms>true</EnableStrictModeForCompatibleTfms>
+        <EnableStrictModeForCompatibleFrameworksInPackage>true</EnableStrictModeForCompatibleFrameworksInPackage>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <!-- Per-version notes are kept in CHANGELOG.md (Keep-a-Changelog format).
+             nuget.org renders this string as plain text on the package page. -->
+        <PackageReleaseNotes>See https://github.com/mitchell-tesch/Strand7Sharp/blob/main/CHANGELOG.md for the full release history.</PackageReleaseNotes>
         <RepositoryType>git</RepositoryType>
         <PackageProjectUrl>https://github.com/mitchell-tesch/Strand7Sharp</PackageProjectUrl>
         <RepositoryUrl>https://github.com/mitchell-tesch/Strand7Sharp.git</RepositoryUrl>
@@ -48,6 +59,11 @@
 
     <ItemGroup>
         <None Include="..\README.md" Link="README.md" Pack="true" PackagePath="\" />
+        <None Include="..\CHANGELOG.md" Link="CHANGELOG.md" Pack="true" PackagePath="\" />
+        <!-- 128x128 package icon shown on nuget.org and in IDE NuGet UIs.
+             Regenerate via the tools/IconRender project after editing
+             assets/icon.svg. -->
+        <None Include="..\assets\icon.png" Link="icon.png" Pack="true" PackagePath="\" Visible="false" />
         <!--
           Ship the per-function markdown docs alongside the package so agents/tooling can
           find them. The Link metadata makes the external files appear under a virtual

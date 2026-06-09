@@ -1,3 +1,5 @@
+<img src="https://raw.githubusercontent.com/mitchell-tesch/Strand7Sharp/main/assets/icon.png" alt="Strand7Sharp icon" width="128" align="right" />
+
 # Strand7Sharp
 
 [![build](https://github.com/mitchell-tesch/Strand7Sharp/actions/workflows/build.yml/badge.svg)](https://github.com/mitchell-tesch/Strand7Sharp/actions/workflows/build.yml)
@@ -38,15 +40,73 @@ Strand7Api  ── Version, BuildString, MaxModelFileId, LicenceOptions,
             └── OpenModel / OpenModelReadOnly / NewModel  → St7Model
 
 St7Model    ── FileId, FileName, Units, Save, SaveCopyAs, GetTotal, OpenResults
-            ├── Entities:  Nodes, Beams, Plates, Bricks, Links,
-            │              Vertices, GeometryFaces, GeometryEdges, LoadPaths
-            ├── Cases:     LoadCases, FreedomCases
-            ├── Coords:    UCS, Groups, EntitySets, Stages
-            ├── Props:     BeamProperties, PlateProperties, BrickProperties
-            ├── Tables:    Tables, Layouts (.Laminates / .Reinforcements)
-            ├── Run:       Solver, Selection
-            └── Misc:      Tools, General  (titles, comments, ResultCombinations)
+            ├── Entities:    Nodes, Beams, Plates, Bricks, Links,
+            │                Vertices, GeometryFaces, GeometryEdges, LoadPaths
+            ├── Cases:       LoadCases, FreedomCases, Stages, NLAIncrements
+            ├── Coords/Sets: UCS, Groups, EntitySets
+            ├── Properties:  BeamProperties, PlateProperties, BrickProperties
+            ├── Tables:      Tables, Layouts (.Laminates / .Reinforcements),
+            │                CavityFluids
+            ├── Run:         Solver  →  OpenResults(...)  → St7Results
+            ├── UI / tools:  Selection, Tools, Window
+            └── Metadata:    General (titles, comments, ResultCombinations)
 ```
+
+### Coverage of Layer 3
+
+Layer 3 is **deliberately not a 1:1 wrapper** over all 1918 St7 functions —
+that's what Layer 2 (`St7Native`) is for. Instead it covers the **common 80%**
+of model-building, solving, and result-reading workflows behind a small,
+discoverable, value-type-only surface. Concretely:
+
+- **Session lifecycle** — `Strand7Api.Initialize()` / `Dispose` (singleton
+  `St7Init`/`St7Release`), multi-model sessions via `OpenModel` /
+  `OpenModelReadOnly` / `NewModel` with auto-allocated `FileId`s, plus
+  `api.Settings` for the app-level integer/bool/string slots and
+  `UseSolverDll` toggle.
+- **All mesh entities** — `Nodes`, `Beams`, `Plates`, `Bricks`, `Links`
+  (rigid, master/slave, MPC, attachment, point-contact, …), with full CRUD
+  (`Add`, indexer, `Count`, `foreach`) and the day-to-day attribute set
+  (XYZ / connection / property / group / id / restraints / forces / moments
+  / springs / masses / temperature / pressures / edge & end releases /
+  offsets / orientation).
+- **Geometry (pre-mesh) entities** — `Vertices`, `GeometryFaces`,
+  `GeometryEdges`, `LoadPaths`, including mesh sizing, property assignment,
+  thickness, normal alignment, and the load-path template helpers.
+- **Cases & staging** — `LoadCases`, `FreedomCases`, `Stages` (with
+  `EnableGroup`, `FluidLevel`, `SolverActiveStage`, …), and
+  `NLAIncrements` for non-linear step tables.
+- **Coordinate systems & grouping** — `UCS`, `Groups` (hierarchical), and
+  `EntitySets` (with `AddSelectedToEntitySet`-style helpers).
+- **Properties, tables, layouts** — typed `BeamProperties` /
+  `PlateProperties` / `BrickProperties` with material assignment and
+  library look-ups (`AssignLibrarySection`, `AssignLibraryMaterial`,
+  `AssignLibraryComposite`, `AssignLibraryReinforcementLayout`,
+  `AssignLibraryCreepDefinition`), strongly-typed `Tables`
+  (`TableType` enum keyed `Add`/`Enumerate`/`Data`), composite/
+  reinforcement `Layouts.Laminates` and `Layouts.Reinforcements`, and
+  `CavityFluids` for sealed-gas / constant-bulk cavities.
+- **Solver** — `Solver` (linear/nonlinear/dynamic/harmonic/spectral/
+  transient/buckling/QSA/SRA/HRA) with in-proc `Run(...)` **and**
+  out-of-proc `RunProcess(...)` + `IsProcessRunning` polling, plus the
+  common scalar controls (`NonlinearGeometry`, `NumCpu`, `FreedomCase`,
+  `SetDefault*`, …).
+- **Results** — `model.OpenResults(...)` → `St7Results`: case enumeration
+  (`PrimaryCount`, `GetCaseName`/`Time`/`Factor`/`KineticEnergy`), node /
+  beam / plate / brick result extraction, and result-combination setup.
+- **Tooling, UI & metadata** — `Selection` (programmatic select-by-property
+  / select-all / counts), `Tools` (clean-mesh, delete-unused-nodes,
+  subdivide, reorder, geometry cleaning), `Window` (embed/create the
+  Strand7 model window, switch view cases, export images, build
+  animations), and `General` for titles / project / author / comments and
+  `ResultCombinations`.
+
+What Layer 3 **doesn't** include is reached by simply calling
+`Strand7Sharp.St7Native.St7XxxYyy(...)` — the same exception-based wrappers
+the OO surface itself is built on. If a Layer-3 facet is missing a method
+you need, prefer to add it to the relevant `Domain/Xxx.cs` rather than
+working around it at the call site (see *Adding a new Layer-3 facet* in
+`AGENTS.md`).
 
 ### Multiple models in one session
 
@@ -254,12 +314,13 @@ Strand7Sharp/
 │   ├── Generated/St7Native.g.cs     # Auto-generated managed wrappers (Layer 2) - 1918 methods
 │   ├── Core/                        # Strand7Api, St7Model, St7Exception, St7Check, St7Enumerator, enums
 │   └── Domain/                      # Hand-curated facets (Layer 3)
-│       ├── Application.cs   GeneralModel.cs   Tools.cs       Selection.cs
+│       ├── Application.cs   GeneralModel.cs   Comments.cs    Window.cs
+│       ├── Tools.cs         Selection.cs
 │       ├── Nodes.cs         Beams.cs          Plates.cs      Bricks.cs      Links.cs
 │       ├── Vertices.cs      GeometryFaces.cs  GeometryEdges.cs  LoadPaths.cs
 │       ├── LoadCases.cs     FreedomCases.cs   Ucs.cs         Groups.cs
-│       ├── EntitySets.cs    Stages.cs
-│       ├── Properties.cs    Tables.cs         Layouts.cs
+│       ├── EntitySets.cs    Stages.cs         NLAIncrements.cs
+│       ├── Properties.cs    Tables.cs         Layouts.cs     CavityFluids.cs
 │       └── Solver.cs        Results.cs
 ├── docs/
 │   ├── AGENTS.md                    # How to feed the manual to an AI agent
@@ -272,7 +333,7 @@ Strand7Sharp/
 
 ## Prerequisites
 
-- **Windows** (the assembly is `net9.0-windows` / `net8.0-windows` / `net48`).
+- **Windows** (the assembly is `net8.0-windows` / `net48`).
 - A licensed **Strand7 R3** install with `St7API.dll` on the Windows DLL search path.
 - Match your consumer project's `PlatformTarget` to your installed `St7API.dll` (x64 in R3).
 
