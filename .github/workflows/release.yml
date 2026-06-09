@@ -148,6 +148,44 @@ jobs:
             --source https://api.nuget.org/v3/index.json `
             --skip-duplicate
 
+      - name: Extract CHANGELOG section for this version
+        if: steps.ver.outputs.tag != ''
+        id: changelog
+        shell: pwsh
+        run: |
+          $version = '${{ steps.ver.outputs.version }}'
+          $path    = 'CHANGELOG.md'
+          if (-not (Test-Path $path)) {
+            Write-Error "CHANGELOG.md not found at repo root."
+            exit 1
+          }
+
+          # Grab everything between '## [<version>]' and the next '## [' heading
+          # (Keep-a-Changelog format). Trailing link-reference lines like
+          # '[0.1.0]: https://...' at the very bottom are excluded automatically
+          # because they don't start with '## ['.
+          $content = Get-Content $path -Raw
+          $pattern = "(?ms)^##\s*\[$([regex]::Escape($version))\][^\r\n]*\r?\n(.*?)(?=^##\s*\[|\Z)"
+          $m = [regex]::Match($content, $pattern)
+          if (-not $m.Success) {
+            Write-Error "No '## [$version]' section found in CHANGELOG.md. Add one before tagging."
+            exit 1
+          }
+          $body = $m.Groups[1].Value.TrimEnd()
+
+          # Prepend a link back to the full changelog for context.
+          $header = "_See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/${{ steps.ver.outputs.tag }}/CHANGELOG.md) for the full history._`n`n"
+          $body   = $header + $body
+
+          # Write to a file and pass its path through GITHUB_OUTPUT (multi-line
+          # output values are awkward to escape inline).
+          $out = Join-Path $env:RUNNER_TEMP 'release-notes.md'
+          Set-Content -Path $out -Value $body -Encoding utf8
+          "path=$out" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "----- Release notes -----"
+          Write-Host $body
+          Write-Host "-------------------------"
+
       - name: Create GitHub Release
         if: steps.ver.outputs.tag != ''
         uses: softprops/action-gh-release@v2
@@ -155,7 +193,7 @@ jobs:
           tag_name: ${{ steps.ver.outputs.tag }}
           name: Strand7Sharp ${{ steps.ver.outputs.version }}
           draft: true
-          generate_release_notes: true
+          body_path: ${{ steps.changelog.outputs.path }}
           files: |
             artifacts/*.nupkg
             artifacts/*.snupkg
