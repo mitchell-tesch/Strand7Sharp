@@ -1,33 +1,6 @@
 name: release
 
 # Tag-triggered NuGet publish using **Trusted Publishing** (OIDC).
-#
-# No long-lived NUGET_API_KEY secret is required. Instead, NuGet.org issues a
-# short-lived API key in exchange for the GitHub OIDC token, scoped to the
-# trusted-publisher policy you configure on https://www.nuget.org/.
-#
-# One-time setup on nuget.org:
-#   1. Sign in -> your account -> Trusted Publishing -> Add.
-#   2. Repository owner:  mitchell-tesch
-#      Repository name:   Strand7Sharp
-#      Workflow file:     release.yml
-#      Environment:       release           (optional but recommended; matches `environment:` below)
-#      Package owner:     <your nuget.org account>
-#      Package ID pattern: Strand7Sharp     (or Strand7* if you've reserved the prefix)
-#   3. Save the policy.
-#
-# Usage:
-#   1. Bump <Version> in Strand7Sharp/Strand7Sharp.csproj and update CHANGELOG.md.
-#   2. Commit and push to main.
-#   3. Tag the commit:
-#        git tag -a v0.1.0 -m "Strand7Sharp 0.1.0"
-#        git push origin v0.1.0
-#   4. This workflow runs, packs, pushes to nuget.org, and drafts a GitHub Release.
-#
-# Manual dispatch is also supported via workflow_dispatch (won't create a Git tag
-# or GitHub Release — only pushes to nuget.org — so prefer the tag flow for real
-# releases).
-
 on:
   push:
     tags:
