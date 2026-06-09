@@ -1,0 +1,165 @@
+name: release
+
+# Tag-triggered NuGet publish using **Trusted Publishing** (OIDC).
+#
+# No long-lived NUGET_API_KEY secret is required. Instead, NuGet.org issues a
+# short-lived API key in exchange for the GitHub OIDC token, scoped to the
+# trusted-publisher policy you configure on https://www.nuget.org/.
+#
+# One-time setup on nuget.org:
+#   1. Sign in -> your account -> Trusted Publishing -> Add.
+#   2. Repository owner:  mitchell-tesch
+#      Repository name:   Strand7Sharp
+#      Workflow file:     release.yml
+#      Environment:       release           (optional but recommended; matches `environment:` below)
+#      Package owner:     <your nuget.org account>
+#      Package ID pattern: Strand7Sharp     (or Strand7* if you've reserved the prefix)
+#   3. Save the policy.
+#
+# Usage:
+#   1. Bump <Version> in Strand7Sharp/Strand7Sharp.csproj and update CHANGELOG.md.
+#   2. Commit and push to main.
+#   3. Tag the commit:
+#        git tag -a v0.1.0 -m "Strand7Sharp 0.1.0"
+#        git push origin v0.1.0
+#   4. This workflow runs, packs, pushes to nuget.org, and drafts a GitHub Release.
+#
+# Manual dispatch is also supported via workflow_dispatch (won't create a Git tag
+# or GitHub Release — only pushes to nuget.org — so prefer the tag flow for real
+# releases).
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'         # v1.2.3
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'       # v1.2.3-preview.1, v1.2.3-rc.2, etc.
+  workflow_dispatch:
+
+permissions:
+  contents: write   # needed for softprops/action-gh-release
+  id-token: write   # needed to mint the OIDC token for NuGet Trusted Publishing
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    # The `release` environment is referenced in the nuget.org Trusted Publisher
+    # policy. It also gives you a place to add required reviewers / wait timers
+    # / environment-scoped variables if you want manual approval gates later.
+    environment: release
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # SourceLink needs commit history + the working repo SHA.
+          fetch-depth: 0
+
+      - name: Setup .NET (pinned via global.json)
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Derive version from tag
+        id: ver
+        shell: pwsh
+        run: |
+          $ref = "${{ github.ref }}"
+          if ($ref -like 'refs/tags/v*') {
+            $tag = $ref -replace '^refs/tags/', ''
+            $version = $tag.TrimStart('v')
+            "tag=$tag"         | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+            "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+            Write-Host "Releasing version $version (tag $tag)"
+          } else {
+            "tag="    | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+            "version="| Out-File -FilePath $env:GITHUB_OUTPUT -Append
+            Write-Host "Manual dispatch — using <Version> from csproj"
+          }
+
+      - name: Verify csproj <Version> matches tag
+        if: steps.ver.outputs.version != ''
+        shell: pwsh
+        run: |
+          [xml]$proj = Get-Content Strand7Sharp/Strand7Sharp.csproj
+          $csprojVersion = ($proj.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1).Trim()
+          $tagVersion    = '${{ steps.ver.outputs.version }}'
+          if ($csprojVersion -ne $tagVersion) {
+            Write-Error "Version mismatch: csproj <Version> is '$csprojVersion' but tag is 'v$tagVersion'. Bump the csproj or retag."
+            exit 1
+          }
+          Write-Host "csproj <Version> ($csprojVersion) matches tag (v$tagVersion)."
+
+      - name: Restore
+        run: dotnet restore Strand7Sharp.sln
+
+      - name: Build (Release)
+        # St7API.dll is NOT required at build time — P/Invoke resolves at runtime.
+        run: dotnet build Strand7Sharp.sln -c Release --no-restore /warnaserror
+
+      - name: Verify generated code is up to date
+        shell: pwsh
+        run: |
+          ./tools/Inject-XmlDocs.ps1
+          ./tools/Generate-Wrapper.ps1
+          $changed = git status --porcelain -- 'Strand7Sharp/Interop/St7API.cs' 'Strand7Sharp/Generated/St7Native.g.cs'
+          if ($changed) {
+            git --no-pager diff -- 'Strand7Sharp/Interop/St7API.cs' 'Strand7Sharp/Generated/St7Native.g.cs'
+            Write-Error "Generated files are out of date. Re-run tools/Inject-XmlDocs.ps1 and tools/Generate-Wrapper.ps1 and commit the result.`n$changed"
+            exit 1
+          }
+
+      - name: Pack
+        run: dotnet pack Strand7Sharp/Strand7Sharp.csproj -c Release --no-build -o artifacts
+
+      - name: List artifacts
+        shell: pwsh
+        run: Get-ChildItem artifacts | Format-Table Name, Length
+
+      - name: Upload artifacts to workflow run
+        uses: actions/upload-artifact@v4
+        with:
+          name: Strand7Sharp-nupkg
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+
+      - name: Push to nuget.org (Trusted Publishing / OIDC)
+        # NuGet/login exchanges the GitHub OIDC token for a short-lived API key
+        # (valid ~15 min) that matches the Trusted Publisher policy you set up
+        # on nuget.org. The key is exposed via the `NUGET_API_KEY` step output.
+        # See: https://learn.microsoft.com/nuget/nuget-org/trusted-publishing
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+
+      - name: dotnet nuget push
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
+        run: |
+          # Pushing the .nupkg auto-pushes the side-by-side .snupkg to symbols.nuget.org.
+          # --skip-duplicate makes re-runs of the same tag safe (e.g. after a transient failure).
+          dotnet nuget push artifacts/*.nupkg `
+            --api-key $env:NUGET_API_KEY `
+            --source https://api.nuget.org/v3/index.json `
+            --skip-duplicate
+
+      - name: Create GitHub Release
+        if: steps.ver.outputs.tag != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: Strand7Sharp ${{ steps.ver.outputs.version }}
+          draft: true
+          generate_release_notes: true
+          files: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+
+
+
+
