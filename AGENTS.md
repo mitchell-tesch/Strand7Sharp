@@ -59,7 +59,7 @@ Data flow: consumer → `Strand7Api` (singleton, `St7Init`/`St7Release`) → `St
   to a `byte` parameter of a `St7Native.*` wrapper. `St7.btTrue`/`btFalse` are
   `int` and do **not** auto-cast.
 
-## Workflows (PowerShell — repo is Windows-only, `net9.0-windows;net8.0-windows;net48`)
+## Workflows (PowerShell — repo is Windows-only, `net8.0-windows;net48`)
 
 ```powershell
 pwsh tools/Convert-ApiManual.ps1     # Strand7 R3 API Manual.pdf -> docs/api/St7*.md (needs markitdown in .venv)
