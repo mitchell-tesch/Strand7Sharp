@@ -1,5 +1,15 @@
+using System.Collections.Generic;
 using St7API;
 namespace Strand7Sharp;
+
+/// <summary>
+/// The first stage in which a group is active, and the first stage after that
+/// in which it becomes inactive again. <c>Start</c> is <c>null</c> when the
+/// group is never enabled in any stage; <c>End</c> is <c>null</c> when the
+/// group stays on for the rest of the analysis.
+/// </summary>
+public readonly record struct StageLifecycle(int? Start, int? End);
+
 /// <summary>Groups (display / visibility tree) defined on the model.</summary>
 public readonly struct GroupCollection
 {
@@ -67,5 +77,56 @@ public readonly struct GroupCollection
     {
         var m = _m;
         return new St7Enumerator<(string, int)>(Count, i => St7Native.St7GetGroupByIndex(m.FileId, i));
+    }
+
+    /// <summary>
+    /// For every group in the model, return its stage lifecycle: the first
+    /// stage in which the group is enabled and the first stage after that at
+    /// which it becomes disabled again. Groups never enabled in any stage
+    /// yield <c>(null, null)</c>; groups that stay on to the end of the analysis
+    /// yield <c>(Start, null)</c>.
+    /// </summary>
+    /// <remarks>
+    /// Materialises the Stages × Groups activation matrix internally, so callers
+    /// pay one pass regardless of how many lifecycles they inspect.
+    /// </remarks>
+    public IReadOnlyDictionary<int, StageLifecycle> GetStageLifecycles()
+    {
+        var stages = new StageCollection(_m);
+        var totalStages = stages.Count;
+        var totalGroups = Count;
+        var lifecycles = new Dictionary<int, StageLifecycle>(totalGroups);
+
+        for (var i = 1; i <= totalGroups; i++)
+        {
+            var groupId = GetByIndex(i).GroupID;
+            int? start = null;
+            int? end = null;
+            var searchFrom = 1;
+
+            for (var s = 1; s <= totalStages; s++)
+            {
+                if (St7Native.St7GetStageGroupState(_m.FileId, s, groupId) == 0)
+                    continue;
+                start = s;
+                searchFrom = s + 1;
+                break;
+            }
+
+            if (start.HasValue)
+            {
+                for (var s = searchFrom; s <= totalStages; s++)
+                {
+                    if (St7Native.St7GetStageGroupState(_m.FileId, s, groupId) != 0)
+                        continue;
+                    end = s;
+                    break;
+                }
+            }
+
+            lifecycles[groupId] = new StageLifecycle(start, end);
+        }
+
+        return lifecycles;
     }
 }
