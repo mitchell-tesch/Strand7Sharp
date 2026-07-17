@@ -46,6 +46,19 @@ public sealed class St7Model : IDisposable
     public void Save() { ThrowIfDisposed(); St7Native.St7SaveFile(FileId); }
     /// <summary>Writes a copy of the model to a new path. Original file remains open.</summary>
     public void SaveCopyAs(string newFileName) { ThrowIfDisposed(); St7Native.St7SaveFileCopy(FileId, newFileName); }
+
+    /// <summary>
+    /// Exports the model's geometry to a DXF file (<c>St7ExportDXF</c>).
+    /// </summary>
+    /// <param name="fileName">Full path to the .dxf file to write.</param>
+    /// <param name="options">Export options; defaults to <see cref="DxfExportOptions.Default"/>.</param>
+    /// <param name="progressMode">Whether Strand7 shows a progress dialog during the export. Defaults to <see cref="ProgressMode.Quiet"/>.</param>
+    public void ExportDXF(string fileName, DxfExportOptions? options = null, ProgressMode progressMode = ProgressMode.Quiet)
+    {
+        ThrowIfDisposed();
+        var opts = (options ?? DxfExportOptions.Default).ToNativeOptions();
+        St7Native.St7ExportDXF(FileId, fileName, opts, (int)progressMode);
+    }
     /// <summary>Returns the total number of entities of the given type (St7GetTotal).</summary>
     public int GetTotal(EntityType entity) { ThrowIfDisposed(); return St7Native.St7GetTotal(FileId, (int)entity); }
     /// <summary>Enclosed volume of the deformed plate-hull mesh at the given result case.</summary>
