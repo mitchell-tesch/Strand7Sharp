@@ -36,8 +36,20 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
   `bool`; `TryDelete(int, out St7ErrorCode)` additionally reports the
   Strand7 code on failure. Only the soft failure `GroupIdDoesNotExist` (26)
   is swallowed — any other code still throws `St7Exception`.
-- **`GroupCollection.RootId`** — exposes `St7GetDefaultGroupID` so callers
-  don't hard-code the root group id.
+- **`GroupCollection.RootId`** — the tree root group id, found by walking the
+  parent chain until reaching a group whose parent is non-positive (Strand7 R3
+  uses `-1` as the "no parent" sentinel). Safe to use as `parentId` for
+  `AddChild`.
+- **`GroupCollection.DefaultId`** — get / set the Strand7 default group id
+  (the group into which newly-created entities are placed). Backed by
+  `St7Get/SetDefaultGroupID`. Distinct from `RootId`: the default is a mutable
+  setting and may point to any descendant, whereas `RootId` is a structural
+  constant of the group tree.
+
+### Fixed
+
+- Doc comment on `GroupCollection.GetParent` was wrong to claim "0 for the
+  root group" — Strand7 R3 uses a non-positive sentinel (observed as `-1`).
 
 ### Changed
 

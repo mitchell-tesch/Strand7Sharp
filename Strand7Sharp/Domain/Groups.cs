@@ -57,15 +57,49 @@ public readonly struct GroupCollection
         }
     }
 
-    /// <summary>The root (default) group id, as reported by <c>St7GetDefaultGroupID</c>.</summary>
-    public int RootId => St7Native.St7GetDefaultGroupID(_m.FileId);
+    /// <summary>
+    /// The tree root group id — the group whose <see cref="GetParent"/> returns a
+    /// non-positive sentinel. This is a structural constant of the group tree and
+    /// safe to use as the <c>parentId</c> for <see cref="AddChild"/>; it is
+    /// **not** the same as <see cref="DefaultId"/>, which is a mutable setting.
+    /// </summary>
+    /// <remarks>
+    /// Found by walking the parent chain from the first group in the model. On an
+    /// empty model returns 1 by Strand7 convention.
+    /// </remarks>
+    public int RootId
+    {
+        get
+        {
+            if (Count == 0) return 1;
+            var currentId = GetByIndex(1).GroupID;
+            while (true)
+            {
+                var parent = GetParent(currentId);
+                if (parent <= 0) return currentId;
+                currentId = parent;
+            }
+        }
+    }
+
+    /// <summary>
+    /// The default group id — the group into which newly-created entities are
+    /// placed. Set by the user via <see cref="St7Native.St7SetDefaultGroupID"/>
+    /// or the Strand7 UI and may point to any group, not just the tree root.
+    /// Use <see cref="RootId"/> when you need the structural top of the tree.
+    /// </summary>
+    public int DefaultId
+    {
+        get => St7Native.St7GetDefaultGroupID(_m.FileId);
+        set => St7Native.St7SetDefaultGroupID(_m.FileId, value);
+    }
 
     public void Show(int groupId) => St7Native.St7ShowGroup(_m.FileId, groupId);
     public void Hide(int groupId) => St7Native.St7HideGroup(_m.FileId, groupId);
     /// <summary>Whether the group is currently visible.</summary>
     public bool GetVisible(int groupId) => St7Native.St7GetGroupVisibility(_m.FileId, groupId) != 0;
 
-    /// <summary>Parent group ID (0 for the root group).</summary>
+    /// <summary>Parent group id. Non-positive (e.g. -1 in R3.1.7) indicates the tree root.</summary>
     public int GetParent(int groupId) => St7Native.St7GetGroupParent(_m.FileId, groupId);
     /// <summary>First-child group ID under <paramref name="groupId"/> (0 if none).</summary>
     public int GetChild(int groupId) => St7Native.St7GetGroupChild(_m.FileId, groupId);
