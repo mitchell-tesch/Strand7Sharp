@@ -16,6 +16,40 @@ public readonly struct GroupCollection
     /// <summary>Add a new child group under <paramref name="parentId"/>; returns the new group ID.</summary>
     public int AddChild(int parentId, string name) => St7Native.St7NewChildGroup(_m.FileId, parentId, name);
     public void Delete(int groupId) => St7Native.St7DeleteGroup(_m.FileId, groupId);
+
+    /// <summary>
+    /// Attempts to delete a group. Returns <c>true</c> on success, <c>false</c>
+    /// when Strand7 refuses because the group id no longer exists (e.g. it was
+    /// cascade-deleted along with a parent). Any other error still throws
+    /// <see cref="St7Exception"/>.
+    /// </summary>
+    public bool TryDelete(int groupId) => TryDelete(groupId, out _);
+
+    /// <summary>
+    /// Attempts to delete a group. Returns <c>true</c> on success. On failure
+    /// returns <c>false</c> and reports the Strand7 error code via
+    /// <paramref name="errorCode"/> — <see cref="St7ErrorCode.GroupIdDoesNotExist"/>
+    /// is treated as a soft failure; any other code is re-thrown as
+    /// <see cref="St7Exception"/>.
+    /// </summary>
+    public bool TryDelete(int groupId, out St7ErrorCode errorCode)
+    {
+        try
+        {
+            St7Native.St7DeleteGroup(_m.FileId, groupId);
+            errorCode = St7ErrorCode.None;
+            return true;
+        }
+        catch (St7Exception ex) when (ex.Code == St7ErrorCode.GroupIdDoesNotExist)
+        {
+            errorCode = ex.Code;
+            return false;
+        }
+    }
+
+    /// <summary>The root (default) group id, as reported by <c>St7GetDefaultGroupID</c>.</summary>
+    public int RootId => St7Native.St7GetDefaultGroupID(_m.FileId);
+
     public void Show(int groupId) => St7Native.St7ShowGroup(_m.FileId, groupId);
     public void Hide(int groupId) => St7Native.St7HideGroup(_m.FileId, groupId);
     /// <summary>Whether the group is currently visible.</summary>
