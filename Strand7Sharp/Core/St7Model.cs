@@ -26,18 +26,22 @@ public sealed class St7Model : IDisposable
     public string FileName { get; }
     /// <summary>Fired when <see cref="Dispose"/> completes, carrying the FileId.</summary>
     internal event Action<int>? OnDisposed;
-    private St7Model(int fileId, string fileName)
+    private readonly string? _autoScratchPath;
+
+    private St7Model(int fileId, string fileName, string? autoScratchPath = null)
     {
         FileId = fileId;
         FileName = fileName;
+        _autoScratchPath = autoScratchPath;
     }
-    internal static St7Model Open(int fileId, string fileName, string scratchPath, bool readOnly)
+    internal static St7Model Open(int fileId, string fileName, string scratchPath, bool readOnly, string? autoScratchPath = null)
     {
         if (readOnly) St7Native.St7OpenFileReadOnly(fileId, fileName, scratchPath);
         else          St7Native.St7OpenFile(fileId, fileName, scratchPath);
-        return new St7Model(fileId, fileName);
+        return new St7Model(fileId, fileName, autoScratchPath);
     }
-    internal static St7Model AttachExisting(int fileId, string fileName) => new(fileId, fileName);
+    internal static St7Model AttachExisting(int fileId, string fileName, string? autoScratchPath = null)
+        => new(fileId, fileName, autoScratchPath);
     /// <summary>Saves the model in place.</summary>
     public void Save() { ThrowIfDisposed(); St7Native.St7SaveFile(FileId); }
     /// <summary>Writes a copy of the model to a new path. Original file remains open.</summary>
@@ -119,6 +123,13 @@ public sealed class St7Model : IDisposable
         if (_disposed) return;
         _disposed = true;
         try { St7.St7CloseFile(FileId); } catch { /* ignore */ }
+
+        if (_autoScratchPath is { Length: > 0 })
+        {
+            try { if (System.IO.Directory.Exists(_autoScratchPath)) System.IO.Directory.Delete(_autoScratchPath, recursive: true); }
+            catch { /* leave temp cleanup to the OS if we can't remove it */ }
+        }
+
         OnDisposed?.Invoke(FileId);
     }
 }
