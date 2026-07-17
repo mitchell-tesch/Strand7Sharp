@@ -75,6 +75,13 @@ public readonly struct LoadPathTemplate
     public int NumHeatSources(int vehicle = 0) => St7Native.St7GetNumLoadPathTemplateHeatSources(_m.FileId, Id, vehicle);
     public int NumVehicles => St7Native.St7GetNumLoadPathTemplateVehicles(_m.FileId, Id);
 
+    /// <summary>The group ID this load-path template is assigned to.</summary>
+    public int Group
+    {
+        get => St7Native.St7GetEntityGroup(_m.FileId, St7.tyLOADPATH, Id);
+        set => St7Native.St7SetEntityGroup(_m.FileId, St7.tyLOADPATH, Id, value);
+    }
+
     /// <summary>Delete this template (and remove paths derived from it).</summary>
     public void Delete() => St7Native.St7DeleteLoadPathTemplate(_m.FileId, Id);
 }
