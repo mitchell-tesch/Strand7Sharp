@@ -26,22 +26,39 @@ public sealed class St7Model : IDisposable
     public string FileName { get; }
     /// <summary>Fired when <see cref="Dispose"/> completes, carrying the FileId.</summary>
     internal event Action<int>? OnDisposed;
-    private St7Model(int fileId, string fileName)
+    private readonly string? _autoScratchPath;
+
+    private St7Model(int fileId, string fileName, string? autoScratchPath = null)
     {
         FileId = fileId;
         FileName = fileName;
+        _autoScratchPath = autoScratchPath;
     }
-    internal static St7Model Open(int fileId, string fileName, string scratchPath, bool readOnly)
+    internal static St7Model Open(int fileId, string fileName, string scratchPath, bool readOnly, string? autoScratchPath = null)
     {
         if (readOnly) St7Native.St7OpenFileReadOnly(fileId, fileName, scratchPath);
         else          St7Native.St7OpenFile(fileId, fileName, scratchPath);
-        return new St7Model(fileId, fileName);
+        return new St7Model(fileId, fileName, autoScratchPath);
     }
-    internal static St7Model AttachExisting(int fileId, string fileName) => new(fileId, fileName);
+    internal static St7Model AttachExisting(int fileId, string fileName, string? autoScratchPath = null)
+        => new(fileId, fileName, autoScratchPath);
     /// <summary>Saves the model in place.</summary>
     public void Save() { ThrowIfDisposed(); St7Native.St7SaveFile(FileId); }
     /// <summary>Writes a copy of the model to a new path. Original file remains open.</summary>
     public void SaveCopyAs(string newFileName) { ThrowIfDisposed(); St7Native.St7SaveFileCopy(FileId, newFileName); }
+
+    /// <summary>
+    /// Exports the model's geometry to a DXF file (<c>St7ExportDXF</c>).
+    /// </summary>
+    /// <param name="fileName">Full path to the .dxf file to write.</param>
+    /// <param name="options">Export options; defaults to <see cref="DxfExportOptions.Default"/>.</param>
+    /// <param name="progressMode">Whether Strand7 shows a progress dialog during the export. Defaults to <see cref="ProgressMode.Quiet"/>.</param>
+    public void ExportDXF(string fileName, DxfExportOptions? options = null, ProgressMode progressMode = ProgressMode.Quiet)
+    {
+        ThrowIfDisposed();
+        var opts = (options ?? DxfExportOptions.Default).ToNativeOptions();
+        St7Native.St7ExportDXF(FileId, fileName, opts, (int)progressMode);
+    }
     /// <summary>Returns the total number of entities of the given type (St7GetTotal).</summary>
     public int GetTotal(EntityType entity) { ThrowIfDisposed(); return St7Native.St7GetTotal(FileId, (int)entity); }
     /// <summary>Enclosed volume of the deformed plate-hull mesh at the given result case.</summary>
@@ -119,6 +136,13 @@ public sealed class St7Model : IDisposable
         if (_disposed) return;
         _disposed = true;
         try { St7.St7CloseFile(FileId); } catch { /* ignore */ }
+
+        if (_autoScratchPath is { Length: > 0 })
+        {
+            try { if (System.IO.Directory.Exists(_autoScratchPath)) System.IO.Directory.Delete(_autoScratchPath, recursive: true); }
+            catch { /* leave temp cleanup to the OS if we can't remove it */ }
+        }
+
         OnDisposed?.Invoke(FileId);
     }
 }

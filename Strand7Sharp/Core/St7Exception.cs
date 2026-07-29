@@ -15,6 +15,9 @@ public sealed class St7Exception : Exception
     /// <summary>The raw Strand7 error code (e.g. one of the <c>ERR7_*</c> constants).</summary>
     public int ErrorCode { get; }
 
+    /// <summary>Typed view of <see cref="ErrorCode"/>. Cast to inspect codes not enumerated in <see cref="St7ErrorCode"/>.</summary>
+    public St7ErrorCode Code => (St7ErrorCode)ErrorCode;
+
     /// <summary>The name of the St7API function that produced the error, if known.</summary>
     public string? FunctionName { get; }
 

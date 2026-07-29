@@ -19,7 +19,7 @@
         <IsPackable>true</IsPackable>
         <PackageId>Strand7Sharp</PackageId>
         <Title>Strand7Sharp — Idiomatic Strand7 R3 API wrapper</Title>
-        <Version>0.1.0</Version>
+        <Version>0.2.0</Version>
         <Authors>Mitchell Tesch</Authors>
         <Copyright>Copyright © Mitchell Tesch</Copyright>
         <Description>Idiomatic C# wrapper around the Strand7 R3 API (St7API.dll), with an OO model, exception-based error handling, IDisposable file/model handles, and bundled per-function documentation extracted from the official manual.</Description>

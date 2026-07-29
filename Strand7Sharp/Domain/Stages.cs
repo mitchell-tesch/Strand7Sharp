@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using St7API;
 namespace Strand7Sharp;
 /// <summary>Construction-staging cases (stage 1..N).</summary>
@@ -60,6 +61,28 @@ public readonly struct StageCollection
     {
         var m = _m;
         return new St7Enumerator<Stage>(Count, i => new Stage(m, i));
+    }
+
+    /// <summary>
+    /// Materialise the full Stages × Groups activation matrix in one pass.
+    /// The returned dictionary is keyed on <c>(GroupId, Stage)</c> and holds
+    /// <c>true</c> when the group is enabled in that stage. Useful when a
+    /// caller needs the raw matrix rather than a per-group lifecycle.
+    /// </summary>
+    public IReadOnlyDictionary<(int GroupId, int Stage), bool> BuildEnabledMatrix()
+    {
+        var totalStages = Count;
+        var groups = new GroupCollection(_m);
+        var totalGroups = groups.Count;
+
+        var matrix = new Dictionary<(int, int), bool>(totalStages * totalGroups);
+        for (var i = 1; i <= totalGroups; i++)
+        {
+            var groupId = groups.GetByIndex(i).GroupID;
+            for (var s = 1; s <= totalStages; s++)
+                matrix[(groupId, s)] = St7Native.St7GetStageGroupState(_m.FileId, s, groupId) != 0;
+        }
+        return matrix;
     }
 }
 

@@ -95,34 +95,59 @@ public sealed class Strand7Api : IDisposable
     /// is zero (default) a free uID is allocated automatically; otherwise the
     /// caller-supplied uID is used and must not already be in use.
     /// </summary>
-    public St7Model OpenModel(string fileName, string scratchPath, int fileId = 0)
+    /// <param name="fileName">Full path to the .st7 model file.</param>
+    /// <param name="scratchPath">
+    /// Directory Strand7 may use for temporary state. Created if missing.
+    /// When <c>null</c> or empty a unique directory under the system temp path
+    /// is auto-provisioned and deleted when the returned <see cref="St7Model"/>
+    /// is disposed.
+    /// </param>
+    /// <param name="fileId">Optional caller-chosen uID; 0 auto-allocates.</param>
+    public St7Model OpenModel(string fileName, string? scratchPath = null, int fileId = 0)
     {
         ThrowIfDisposed();
+        var (resolved, autoScratch) = ResolveScratchPath(scratchPath);
         int id = ResolveFileId(fileId);
-        var m = St7Model.Open(id, fileName, scratchPath, readOnly: false);
+        var m = St7Model.Open(id, fileName, resolved, readOnly: false, autoScratchPath: autoScratch);
         Register(m);
         return m;
     }
 
-    /// <summary>Opens a Strand7 model file read-only.</summary>
-    public St7Model OpenModelReadOnly(string fileName, string scratchPath, int fileId = 0)
+    /// <summary>Opens a Strand7 model file read-only. See <see cref="OpenModel"/> for parameters.</summary>
+    public St7Model OpenModelReadOnly(string fileName, string? scratchPath = null, int fileId = 0)
     {
         ThrowIfDisposed();
+        var (resolved, autoScratch) = ResolveScratchPath(scratchPath);
         int id = ResolveFileId(fileId);
-        var m = St7Model.Open(id, fileName, scratchPath, readOnly: true);
+        var m = St7Model.Open(id, fileName, resolved, readOnly: true, autoScratchPath: autoScratch);
         Register(m);
         return m;
     }
 
-    /// <summary>Creates a new empty Strand7 model file via <see cref="St7.St7NewFile"/>.</summary>
-    public St7Model NewModel(string fileName, string scratchPath, int fileId = 0)
+    /// <summary>Creates a new empty Strand7 model file via <see cref="St7.St7NewFile"/>. See <see cref="OpenModel"/> for parameters.</summary>
+    public St7Model NewModel(string fileName, string? scratchPath = null, int fileId = 0)
     {
         ThrowIfDisposed();
+        var (resolved, autoScratch) = ResolveScratchPath(scratchPath);
         int id = ResolveFileId(fileId);
-        St7Native.St7NewFile(id, fileName, scratchPath);
-        var m = St7Model.AttachExisting(id, fileName);
+        St7Native.St7NewFile(id, fileName, resolved);
+        var m = St7Model.AttachExisting(id, fileName, autoScratchPath: autoScratch);
         Register(m);
         return m;
+    }
+
+    private static (string Resolved, string? AutoOwned) ResolveScratchPath(string? scratchPath)
+    {
+        if (!string.IsNullOrWhiteSpace(scratchPath))
+        {
+            System.IO.Directory.CreateDirectory(scratchPath!);
+            // Caller-supplied — we do not own its lifetime.
+            return (scratchPath!, null);
+        }
+        var unique = $"model_{Guid.NewGuid():N}";
+        var auto = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "Strand7Sharp", unique);
+        System.IO.Directory.CreateDirectory(auto);
+        return (auto, auto);
     }
 
     /// <summary>Enumerate the models currently tracked by this session.</summary>
