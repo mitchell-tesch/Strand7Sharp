@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{4B1C3E2A
 		tools\Convert-ApiManual.ps1 = tools\Convert-ApiManual.ps1
 		tools\Generate-Wrapper.ps1 = tools\Generate-Wrapper.ps1
 		tools\Inject-XmlDocs.ps1 = tools\Inject-XmlDocs.ps1
+		tools\Refresh-Interop.ps1 = tools\Refresh-Interop.ps1
+		tools\Generate-ErrorCodes.ps1 = tools\Generate-ErrorCodes.ps1
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{4B1C3E2A-7F9D-4BCE-9AEE-B1B3B5C4D1A3}"
