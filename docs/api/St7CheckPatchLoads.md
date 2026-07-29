@@ -7,26 +7,15 @@ patch plate edges that remain selected after the function has been called; edges
 which the load could not be transferred to beam elements.
 
 long St7CheckPatchLoads(long uID, long CaseNum)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 CaseNum
-
 Load case number.
-
 Dependencies
 Selection
-
 Entities can be selected using functions in Entity Selection.
-
 Keep Selected
-
 Assigned using St7SetKeepSelect.
-
 Global Parameters
-
 ivPlateEdgesAssigned, ivPlateEdgesNotFullyAssigned.

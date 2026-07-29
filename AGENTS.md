@@ -62,12 +62,18 @@ Data flow: consumer → `Strand7Api` (singleton, `St7Init`/`St7Release`) → `St
 ## Workflows (PowerShell — repo is Windows-only, `net8.0-windows;net48`)
 
 ```powershell
-pwsh tools/Convert-ApiManual.ps1     # Strand7 R3 API Manual.pdf -> docs/api/St7*.md (needs markitdown in .venv)
+pwsh tools/Refresh-Interop.ps1       # all-in-one: fresh install St7API.cs + docs + wrapper (use after a Strand7 upgrade; pass -Force to re-run markitdown)
+pwsh tools/Convert-ApiManual.ps1     # Strand7 R3 API Manual.pdf -> docs/api/St7*.md (needs markitdown[pdf] in .venv)
 pwsh tools/Inject-XmlDocs.ps1        # docs/api/*.md -> <summary> above each [DllImport] in St7API.cs (idempotent)
 pwsh tools/Generate-Wrapper.ps1      # St7API.cs  -> Strand7Sharp/Generated/St7Native.g.cs (1918 wrappers, idempotent)
 dotnet build -c Release
 dotnet pack  -c Release              # ships docs/api/*.md inside the NuGet package
 ```
+
+`Refresh-Interop.ps1` runs the last three in order after copying the raw
+`St7API.cs` from `C:\Program Files\Strand7 R31\API Includes\Visual C#\` over
+the repo copy — that's the intended way to roll forward a new Strand7 release.
+Running the individual scripts on their own is still fine; each is idempotent.
 
 The PDF is **not** redistributed — see `docs/AGENTS.md` for the rationale and
 the agent rule ("read `docs/api/<FunctionName>.md` before calling any St7

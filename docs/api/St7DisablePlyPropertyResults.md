@@ -4,15 +4,9 @@ Disables a ply when extracting selected composite results. To access the results
 St7GetPlateResultArray.
 
 long St7DisablePlyPropertyResults(long uID, long PropNum)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
 
-Strand7 API Manual
-
 PropNum
-
 Ply property number.

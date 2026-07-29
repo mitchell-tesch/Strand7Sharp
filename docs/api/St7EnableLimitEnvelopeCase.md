@@ -4,17 +4,10 @@ Enables the specified result case in a limit envelope for the currently open sol
 result cases are included in the envelope.
 
 long St7EnableLimitEnvelopeCase(long uID, long Envelope, long CaseNum)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 Envelope
-
 Limit envelope number.
-
 CaseNum
-
 Result case number.

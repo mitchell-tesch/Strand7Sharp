@@ -4,13 +4,8 @@ Clears the time history response for the specified model based on a harmonic res
 harmonic response result file must currently be open.
 
 long St7ClearHRATimeHistory(long uID)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
-Strand7 API Manual
 
 Influence Combinations

@@ -4,13 +4,8 @@ Enables a ply when extracting selected composite results. To access the results 
 St7GetPlateResultArray.
 
 long St7EnablePlyPropertyResults(long uID, long PropNum)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 PropNum
-
 Ply property number.

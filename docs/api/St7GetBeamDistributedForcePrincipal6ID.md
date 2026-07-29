@@ -5,39 +5,22 @@ principal axis system of the beam. See also St7GetEntityAttributeSequenceCount a
 St7GetEntityAttributeSequence.
 
 long St7GetBeamDistributedForcePrincipal6ID(long uID, long BeamNum, long BeamDir,
-
 long CaseNum, long ID, long* DLType, double* Doubles)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 BeamNum
-
 Beam number.
-
 BeamDir
-
-Principal or local axis direction.  Principal directions are denoted as 1, 2 or 3; local directions are
+Principal or local axis direction. Principal directions are denoted as 1, 2 or 3; local directions are
 denoted as either 4 (local x) or 5 (local y); see Beam Local Coordinates.
-
 CaseNum
-
 Load case number.
-
 ID
-
 Distributed load ID.
-
 Output Parameters
-
 DLType
-
 One of dlConstant, dlLinear, dlTriangular, dlThreePoint0, dlThreePoint1 or dlTrapezoidal.
-
 Doubles[0..5]
-
 A 6-element array describing the distributed load. See Beam Distributed Load Types for additional
 information.

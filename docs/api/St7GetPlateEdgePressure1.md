@@ -5,28 +5,16 @@ element, perpendicular to the plate edge. See also St7GetEntityAttributeSequence
 St7GetEntityAttributeSequence.
 
 long St7GetPlateEdgePressure1(long uID, long PlateNum, long CaseNum,
-
 long EdgeNum, double* Doubles)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 PlateNum
-
 Plate number
-
 CaseNum
-
 Load case number.
-
 EdgeNum
-
 Local edge number; one of 1, 2, 3 or 4.
-
 Output Parameters
 Doubles[0]
-
 Edge pressure for the plate edge, with positive pressure directed away from the plate.

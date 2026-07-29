@@ -5,18 +5,11 @@ the exception of bsNullSection. The function will return an error if the propert
 section types.
 
 long St7CalculateBeamSectionProperties(long uID, long PropNum, bool DoShear)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 PropNum
-
 Beam property number.
-
 DoShear
-
 Include the shear area values; either True or False. If the shear areas are included the “thick” beam
 formulation is used.

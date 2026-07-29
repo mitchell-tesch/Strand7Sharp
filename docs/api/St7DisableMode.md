@@ -4,15 +4,8 @@ Disables the specified mode in the modal superposition file for harmonic respons
 transient dynamic analysis with mode superposition.
 
 long St7DisableMode(long uID, long ModeNum)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 ModeNum
-
 Mode number to disable.
-
-Solver – Harmonic, Spectral and Linear Transient Dynamic

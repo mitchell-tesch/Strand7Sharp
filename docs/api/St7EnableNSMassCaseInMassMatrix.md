@@ -4,13 +4,8 @@ Enables the non-structural mass for the specified load case such that it is incl
 frequency and transient dynamic analysis.
 
 long St7EnableNSMassCaseInMassMatrix(long uID, long CaseNum)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 CaseNum
-
 Load case number.

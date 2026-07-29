@@ -1,22 +1,14 @@
 # St7SetCombinedLSACombinationState
 
-Sets the enabled state of the specified linear load case combination for user-generated .LSA files.  Only enabled
+Sets the enabled state of the specified linear load case combination for user-generated .LSA files. Only enabled
 cases are generated as result cases.
 
 long St7SetCombinedLSACombinationState(long uID, long CaseNum, bool Enabled)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
 
-Linear Load Case Combinations
-
 CaseNum
-
 Load case combination number.
-
 Enabled
-
 True to enable the combination.

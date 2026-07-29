@@ -4,11 +4,6 @@ Allows the strain units set by St7SetResultOptions to override the report of abs
 default.
 
 long St7EnableModelStrainUnit(long uID)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
-Units

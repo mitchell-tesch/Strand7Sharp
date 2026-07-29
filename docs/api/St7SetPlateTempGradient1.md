@@ -5,23 +5,13 @@ axis direction and is constant over the element surface. This attribute is only 
 structural analysis.
 
 long St7SetPlateTempGradient1(long uID, long PlateNum, long CaseNum,
-
 double* Doubles)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 PlateNum
-
 Plate number.
-
 CaseNum
-
 Load case number.
-
 Doubles[0]
-
 Temperature gradient in the local z axis direction.

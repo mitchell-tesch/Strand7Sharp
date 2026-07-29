@@ -4,20 +4,12 @@ Assigns a desired mesh size at the specified vertex. This value is used to contr
 using the surface automeshing tools.
 
 long St7SetVertexMeshSize1(long uID, long VertexNum, double* Doubles)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 VertexNum
-
 Vertex number.
 
-Strand7 API Manual
-
 Doubles[0]
-
 Desired mesh size at the specified vertex. This value is used to determine the desired edge length of
 adjacent plate elements generated during surface auto-meshing.

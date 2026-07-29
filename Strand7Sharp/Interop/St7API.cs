@@ -5102,7 +5102,7 @@ namespace St7API
         [DllImport("St7API.dll")]
         public static extern int St7HideWindowEntityPanel(int uID);
         /// <summary>
-        /// Strand7 API Manual
+        /// Shows the status bar at the bottom of the model window.
         /// </summary>
         [DllImport("St7API.dll")]
         public static extern int St7ShowWindowStatusBar(int uID);
@@ -5172,7 +5172,7 @@ namespace St7API
         [DllImport("St7API.dll")]
         public static extern int St7HideWindowViewToolbar(int uID);
         /// <summary>
-        /// (if result file is open)
+        /// Shows the results toolbar on the model window, when a result file is open.
         /// </summary>
         [DllImport("St7API.dll")]
         public static extern int St7ShowWindowResultsToolbar(int uID);
@@ -10822,7 +10822,7 @@ namespace St7API
         [DllImport("St7API.dll")]
         public static extern int St7SetTableTypeData(int uID, int TableType, int TableID, int NumEntries, double[] Doubles);
         /// <summary>
-        /// all uniquely identify tables by means of their TableType parameter (listed above) and TableID.
+        /// Returns the XY data for the specified table.
         /// </summary>
         [DllImport("St7API.dll")]
         public static extern int St7GetTableTypeData(int uID, int TableType, int TableID, int MaxRows, ref int NumRows, double[] Doubles);
@@ -14001,7 +14001,7 @@ namespace St7API
         [DllImport("St7API.dll")]
         public static extern int St7PLCircleLineIntersect3(int uID, double[] P1, double[] P2, double[] P3, double Radius);
         /// <summary>
-        /// Generates a line of beams or nodes on a circular fillet between two circles. The fillet touches each of the two circles at a single tangent point. The two circles are defined by centres P1 and P2 and radii R1 and R2 respectively. A third point, P3, is used to define the plane of the circles. The radius of the fillet is specified as R3.
+        /// Generates a line of beams or nodes on a circular fillet between two circles. The fillet touches each of the two circles at a single tangent point. The two circles are defined by centres P1 and P2 and radii R1 and R2 respectively. A third point, P3, is used to define the plane of the circles. The radius of the fillet is specified as R3. Note that this tool will not produce any results if one of the circles is completely enclosed by the other or if the circles are further than 2 x R3 apart.
         /// </summary>
         [DllImport("St7API.dll")]
         public static extern int St7PLCirclesFillet3R(int uID, double[] P1, double[] P2, double[] P3, double R1, double R2, double R3, int NumSteps, byte FullCircle);

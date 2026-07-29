@@ -3,38 +3,21 @@
 Sets the material properties for the specified beam property.
 
 long St7SetBeamMaterialData(long uID, long PropNum, double* Doubles)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 PropNum
-
 Beam property number.
-
 Doubles[0..8]
-
 [ipBeamModulus] – Modulus.
-
 [ipBeamShear] – Shear modulus.
-
 [ipBeamPoisson] – Poisson’s ratio.
-
 [ipBeamDensity] – Density.
-
 [ipBeamAlpha] – Thermal expansion coefficient.
-
 [ipBeamViscosity] – Viscous damping coefficient.
-
 [ipBeamDampingRatio] – Damping ratio.
-
 [ipBeamConductivity] – Thermal conductivity coefficient.
-
 [ipBeamSpecificHeat] – Specific heat coefficient.
-
 Usage
-
 The function can be called for all beam property types (i.e. btSpring, btCable, btTruss, btCutoff, btContact,
 btBeam, btUser, btPipe and btConnection), although not all types support the full set of material parameters.

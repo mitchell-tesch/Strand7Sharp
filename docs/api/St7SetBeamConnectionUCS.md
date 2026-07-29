@@ -5,23 +5,13 @@ rotational stiffness components are distributed according to the 123 axis conven
 attribute is only applicable to beams of connection element type.
 
 long St7SetBeamConnectionUCS(long uID, long BeamNum, long BeamEnd, long UCSId)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
 
-Strand7 API Manual
-
 BeamNum
-
 Beam number.
-
 BeamEnd
-
 Beam end; either 1 or 2.
-
 UCSId
-
 ID number of the specified UCS. UCSId = 1 refers to the global XYZ system.

@@ -5,13 +5,8 @@ excitation tables (acceleration, velocity and displacement), are multiplied by t
 component.
 
 long St7SetTransientBaseVector(long uID, double* Doubles)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 Doubles[0..2]
-
 Components in the global XYZ system.

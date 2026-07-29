@@ -5,24 +5,14 @@ plate local z axis direction and is constant over the element surface. This attr
 dynamic structural analysis. See also St7GetEntityAttributeSequenceCount and St7GetEntityAttributeSequence.
 
 long St7GetPlateTempGradient1(long uID, long PlateNum, long CaseNum,
-
 double* Doubles)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 PlateNum
-
 Plate number.
-
 CaseNum
-
 Load case number.
-
 Output Parameters
 Doubles[0]
-
 Temperature gradient in the local z axis direction.

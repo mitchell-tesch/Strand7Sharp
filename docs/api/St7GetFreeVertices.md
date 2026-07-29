@@ -2,18 +2,10 @@
 
 Returns the display option for free vertices.
 
-Strand7 API Manual
-
 long St7GetFreeVertices(long uID, long* Style)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 Output Parameters
-
 Style
-
 One of vsFreeVertexAll, vsFreeVertexNone or vsFreeVertexGroup.

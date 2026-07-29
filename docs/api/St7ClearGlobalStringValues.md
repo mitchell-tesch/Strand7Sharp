@@ -4,6 +4,4 @@ Resets all the global string values returned by St7GetGlobalStringValue to empty
 
 long St7ClearGlobalStringValues()
 
-Strand7 API Manual
-
 Helper Functions
