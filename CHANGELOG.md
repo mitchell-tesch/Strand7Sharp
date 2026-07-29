@@ -7,7 +7,7 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [0.2.0] - 2026-07-17
+## [0.2.0] - 2026-07-30
 
 ### Added
 
@@ -50,6 +50,23 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 - Doc comment on `GroupCollection.GetParent` was wrong to claim "0 for the
   root group" — Strand7 R3 uses a non-positive sentinel (observed as `-1`).
+- **`tools/Convert-ApiManual.ps1`** — page footers (`<N> Developed by Strand7
+  Pty Limited` and the reversed `Developed by Strand7 Pty Limited <N>` form)
+  and the running-page headers were leaking into per-function markdown
+  whenever a function's docs wrapped across a page. The noise strip now
+  handles both footer orderings (decimal or roman-numeral page numbers), the
+  table-embedded variants that appear when a PDF table wraps a page, the
+  duplicated-header chapter-break case, and an appendix-boundary check
+  (Type Definitions / Error Codes / Table Types / …) that was letting the
+  last function in the reference chapter absorb every trailing appendix.
+- **`tools/Convert-ApiManual.ps1`** — description and the `long St7Xxx(...)`
+  C signature are now separated by a blank line so `Inject-XmlDocs.ps1` no
+  longer swallows the signature into the `<summary>` (was breaking e.g.
+  `St7Release` where markitdown didn't emit its own page break between them).
+- **`tools/Convert-ApiManual.ps1`** — clearer error surfacing: markitdown's
+  stderr is now captured and included in the failure message, with a
+  targeted hint suggesting `uv pip install 'markitdown[pdf]'` when the
+  underlying error is the missing PDF backend.
 
 ### Changed
 
@@ -62,6 +79,15 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
     returned `St7Model` is disposed.
   - Caller-supplied paths are never touched at dispose time.
   - Signature is source-compatible with existing positional callers.
+- **NuGet packaging** — split the README so nuget.org gets a plain-Markdown
+  variant (`README.nuget.md`, wired via `<PackageReadmeFile>` +
+  `PackagePath="README.md"`) that renders the icon, heading and badges
+  correctly, while GitHub keeps the centered HTML header in `README.md`.
+- **`tools/Refresh-Interop.ps1`** — new all-in-one entry point that copies
+  the install's `St7API.cs` over the repo copy and then chains
+  `Convert-ApiManual.ps1` → `Inject-XmlDocs.ps1` → `Generate-Wrapper.ps1`.
+  Use it to roll forward a new Strand7 release in one command; individual
+  scripts remain runnable on their own.
 
 ## [0.1.0] - 2026-06-09
 
@@ -123,6 +149,7 @@ Initial public release.
   itself is **not** redistributed — consumers supply it from a licensed
   Strand7 R3 install.
 
-[Unreleased]: https://github.com/mitchell-tesch/Strand7Sharp/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/mitchell-tesch/Strand7Sharp/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/mitchell-tesch/Strand7Sharp/releases/tag/v0.2.0
 [0.1.0]: https://github.com/mitchell-tesch/Strand7Sharp/releases/tag/v0.1.0
 
