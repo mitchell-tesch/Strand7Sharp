@@ -4,22 +4,14 @@ Returns the number of circumferential divisions used when discretising circular 
 types.
 
 long St7GetBeamSectionCircularDiscretisation(long uID, long PropNum,
-
 long* Integers)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 PropNum
-
 Beam property number.
-
 Output Parameters
 Integers[0]
-
 Number of circumferential divisions used to discretise the circular beam cross section; one of
 0 – for Auto divisions
 1 – for 8 divisions

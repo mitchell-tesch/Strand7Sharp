@@ -3,32 +3,19 @@
 Returns the select state of the specified entity.
 
 long St7GetEntitySelectState(long uID, long Entity, long EntityNum,
-
 long EndEdgeFace, bool* Selected)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 Entity
-
 One of tyNODE, tyBEAM, tyPLATE, tyBRICK, tyLINK, tyVERTEX, tyGEOMETRYEDGE,
 tyGEOMETRYCOEDGE, tyGEOMETRYLOOP, tyGEOMETRYFACE or tyLOADPATH.
-
 EntityNum
-
 Entity number.
-
 EndEdgeFace
-
 Local entity number; either 1 or 2 for tyBEAM; one of 1, 2, 3 or 4 for tyPLATE; or one of 1, 2, 3, 4, 5 or 6
 for tyBRICK. Use 0 to check the state of tyNODE or the state of an entire tyBEAM, tyPLATE or tyBRICK.
 
-Strand7 API Manual
-
 Output Parameters
 Selected
-
 Either True or False.

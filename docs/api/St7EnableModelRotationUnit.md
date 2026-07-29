@@ -4,9 +4,6 @@ Allows the rotation units set by St7SetResultOptions to override the report of r
 default.
 
 long St7EnableModelRotationUnit(long uID)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.

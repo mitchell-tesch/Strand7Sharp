@@ -5,10 +5,8 @@ display behaviour. The display options are only used to define settings for mode
 call.
 
 long St7SetDisplayOptionsPath(char* ConfigPath)
-
 Input Parameters
 ConfigPath
-
 Full path name of the display options file.
 
-Strand7 API Manual
+File Management

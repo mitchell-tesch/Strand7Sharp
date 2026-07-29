@@ -1,10 +1,14 @@
-<img src="https://raw.githubusercontent.com/mitchell-tesch/Strand7Sharp/main/assets/icon.png" alt="Strand7Sharp icon" width="128" align="right" />
+<p align="center">
+  <img src="https://raw.githubusercontent.com/mitchell-tesch/Strand7Sharp/main/assets/icon.png" alt="Strand7Sharp" width="128">
+</p>
 
-# Strand7Sharp
+<h1 align="center">Strand7Sharp</h1>
 
-[![build](https://github.com/mitchell-tesch/Strand7Sharp/actions/workflows/build.yml/badge.svg)](https://github.com/mitchell-tesch/Strand7Sharp/actions/workflows/build.yml)
-[![NuGet](https://img.shields.io/nuget/v/Strand7Sharp.svg)](https://www.nuget.org/packages/Strand7Sharp/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<p align="center">
+  <a href="https://github.com/mitchell-tesch/Strand7Sharp/actions/workflows/build.yml"><img src="https://github.com/mitchell-tesch/Strand7Sharp/actions/workflows/build.yml/badge.svg" alt="build"></a>
+  <a href="https://www.nuget.org/packages/Strand7Sharp/"><img src="https://img.shields.io/nuget/v/Strand7Sharp.svg" alt="NuGet"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+</p>
 
 An idiomatic C# / .NET wrapper around the **Strand7 R3 API** (`St7API.dll`).
 It ships **three concentric layers** so you can pick whichever fits your task:
@@ -326,6 +330,7 @@ Strand7Sharp/
 │   ├── AGENTS.md                    # How to feed the manual to an AI agent
 │   └── api/St7*.md                  # 1916 per-function pages (regenerated from the PDF)
 └── tools/
+    ├── Refresh-Interop.ps1          # install St7API.cs + all three regenerators (Strand7 upgrade path)
     ├── Convert-ApiManual.ps1        # PDF -> docs/api/St7*.md
     ├── Inject-XmlDocs.ps1           # docs/api/*.md -> <summary> on every [DllImport]
     └── Generate-Wrapper.ps1         # St7API.cs -> Generated/St7Native.g.cs
@@ -334,13 +339,16 @@ Strand7Sharp/
 ## Prerequisites
 
 - **Windows** (the assembly is `net8.0-windows` / `net48`).
-- A licensed **Strand7 R3** install with `St7API.dll` on the Windows DLL search path.
+- A licensed **Strand7 R3.1.8** install with `St7API.dll` on the Windows DLL search path.
 - Match your consumer project's `PlatformTarget` to your installed `St7API.dll` (x64 in R3).
 
 ## Regenerating
 
 ```powershell
-# After installing markitdown into .venv:
+# After installing markitdown[pdf] into .venv:
+pwsh tools/Refresh-Interop.ps1       # all-in-one after a Strand7 upgrade
+                                     #   (copies install St7API.cs, then runs the three below)
+# ...or step through them individually:
 pwsh tools/Convert-ApiManual.ps1     # PDF -> docs/api/*.md
 pwsh tools/Inject-XmlDocs.ps1        # markdown -> XML doc comments
 pwsh tools/Generate-Wrapper.ps1      # St7API.cs -> St7Native.g.cs
@@ -348,5 +356,5 @@ dotnet build -c Release
 dotnet pack  -c Release
 ```
 
-All three generators are idempotent.
+All four scripts are idempotent.
 

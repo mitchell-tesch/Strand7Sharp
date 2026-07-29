@@ -5,25 +5,14 @@ structural and heat transfer analysis. See also St7GetEntityAttributeSequenceCou
 St7GetEntityAttributeSequence.
 
 long St7GetVertexTemperatureType1(long uID, long VertexNum, long CaseNum,
-
 long* TType)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 VertexNum
-
 Vertex number.
-
 CaseNum
-
 Load case number.
-
 Output Parameters
-
 TType
-
 One of ntReferenceTemperature, ntFixedTemperature, ntInitialTemperature or ntTableTemperature.

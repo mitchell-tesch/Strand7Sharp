@@ -4,18 +4,11 @@ Returns the initial base displacement assigned for linear and nonlinear transien
 nodes in the specified model will initially have this displacement.
 
 long St7GetTransientBaseDisplacement(long uID, double* Doubles)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 Output Parameters
 Doubles[0..2]
-
 Base displacement components in the global XYZ system.
-
 Usage
-
 Transient base displacement is used as initial conditions for base acceleration and base velocity excitation.

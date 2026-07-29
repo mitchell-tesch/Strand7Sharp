@@ -4,14 +4,9 @@ Returns the option to automatically insert slices to capture maxima and other po
 moment envelopes.
 
 long St7GetEnvelopeAdditionalBeamSlices(long uID, bool* Additional)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 Output Parameters
 Additional
-
 True to add additional slices.

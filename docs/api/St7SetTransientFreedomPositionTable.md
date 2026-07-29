@@ -4,29 +4,15 @@ Assigns a Factor vs Position table that factors restraint conditions on the basi
 Freedom (DoF) for the specified freedom case for quasi-static and nonlinear transient dynamic analysis.
 
 long St7SetTransientFreedomPositionTable(long uID, long CaseNum, long TableID,
-
 long UCSId, long Axis)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 CaseNum
-
 Freedom case number.
-
 TableID
-
 ID number for the Factor vs Position table, or 0 for none.
-
 UCSId
-
 ID number of the UCS supplying a spatial DoF to factor. UCSId = 1 refers to the global XYZ system.
-
 Axis
-
 The UCS DoF used, 1, 2 or 3.
-
-Solver – Quasi-static and Nonlinear Transient Dynamic

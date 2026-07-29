@@ -4,21 +4,13 @@ Returns the desired mesh size assigned to the specified vertex. This value is us
 resolution when using the surface automeshing tools.
 
 long St7GetVertexMeshSize1(long uID, long VertexNum, double* Doubles)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
 
-Strand7 API Manual
-
 VertexNum
-
 Vertex number.
-
 Output Parameters
 Doubles[0]
-
 Desired mesh size at the specified vertex. This value is used to determine the desired edge length of
 adjacent plate elements generated during surface auto-meshing.

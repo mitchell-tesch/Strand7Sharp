@@ -4,17 +4,10 @@ Sets the initial base velocity for linear and nonlinear transient dynamic analys
 specified model will initially have this velocity.
 
 long St7SetTransientBaseVelocity(long uID, double* Doubles)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 Doubles[0..2]
-
 Base velocity components in the global XYZ system.
-
 Usage
-
 Transient base velocity is used as initial conditions for base acceleration and base displacement excitation.

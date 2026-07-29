@@ -3,48 +3,26 @@
 Returns the linear elastic soil parameters for the specified plate property.
 
 long St7GetPlateSoilLSMaterial(long uID, long PropNum, long* Integers,
-
 double* Doubles)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
 PropNum
-
 Property number.
-
 Output Parameters
-
 Integers[0..1]
-
 [ipSoilLSSetPropLevel] – btTrue to set fluid level to Property value; btFalse to set fluid level to
 Stage/Global level.
-
 [ipSoilLSDrainedState] – Drained state; either btTrue or btFalse.
-
 Doubles[0..9]
-
 [ipSoilLSModulus] – Modulus.
-
 [ipSoilLSPoisson] – Poisson’s ratio.
-
 [ipSoilLSDensity] – Mass density per unit volume.
-
 [ipSoilLSHorizontalRatio] – Horizontal stress ratio.
-
 [ipSoilLSER] – Void ratio.
 
-Strand7 API Manual
-
 [ipSoilLSConductivity] – Conductivity.
-
 [ipSoilLSSpecificHeat] – Specific heat.
-
 [ipSoilLSFluidLevel] – Fluid level.
-
 [ipSoilLSViscosity] – Viscous damping coefficient.
-
 [ipSoilLSDampingRatio] – Damping ratio.

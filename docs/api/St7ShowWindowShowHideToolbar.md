@@ -4,9 +4,6 @@ Shows the toolbar, which enables the user to show and hide model entities by Typ
 Viewport.
 
 long St7ShowWindowShowHideToolbar(long uID)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.

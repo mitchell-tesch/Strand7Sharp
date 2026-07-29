@@ -4,11 +4,6 @@ Clears the graphics within the model window and suspends graphics updates until 
 called or St7SetModelWindowRefresh is called with wrAutoRefresh.
 
 long St7ClearModelWindow(long uID)
-
 Input Parameters
-
 uID
-
 Strand7 model file ID.
-
-Model Window
